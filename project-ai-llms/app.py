@@ -1,5 +1,6 @@
 import streamlit as st
 from src.generators.content_generator import generar_contenido
+from src.config import MODELOS_DISPONIBLES
 
 st.title("Generador de Contenido con IA")
 st.write("Crea contenido adaptado a cada plataforma y audiencia.")
@@ -12,10 +13,15 @@ plataforma = st.selectbox(
 audiencia = st.text_input("Audiencia", placeholder="Ej: jóvenes profesionales")
 tono = st.text_input("Tono", placeholder="Ej: cercano y motivador")
 
+modelo = st.selectbox(
+    "Modelo de IA",
+    list(MODELOS_DISPONIBLES.keys())
+)
+
 if st.button("Generar contenido"):
     if tema and audiencia and tono:
         with st.spinner("Generando..."):
-            resultado = generar_contenido(tema, plataforma, audiencia, tono)
+            resultado = generar_contenido(tema, plataforma, audiencia, tono, modelo)
         st.subheader("Resultado:")
         st.write(resultado)
     else:

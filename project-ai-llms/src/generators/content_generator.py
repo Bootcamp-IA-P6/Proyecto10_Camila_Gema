@@ -1,16 +1,13 @@
 from dotenv import load_dotenv
-from langchain_groq import ChatGroq
 from langchain_core.output_parsers import StrOutputParser
 from src.prompts.content_prompt import content_template
+from src.config import obtener_modelo
 
 load_dotenv()
 
-llm = ChatGroq(model="llama-3.3-70b-versatile")
-
-# La cadena: plantilla -> modelo -> texto limpio
-chain = content_template | llm | StrOutputParser()
-
-def generar_contenido(tema, plataforma, audiencia, tono):
+def generar_contenido(tema, plataforma, audiencia, tono, nombre_modelo):
+    llm = obtener_modelo(nombre_modelo)
+    chain = content_template | llm | StrOutputParser()
     return chain.invoke({
         "tema": tema,
         "plataforma": plataforma,
