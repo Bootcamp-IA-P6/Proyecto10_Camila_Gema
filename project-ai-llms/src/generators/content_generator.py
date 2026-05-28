@@ -5,7 +5,7 @@ from src.config import obtener_modelo
 
 load_dotenv()
 
-def generar_contenido(tema, plataforma, audiencia, tono, nombre_modelo):
+def generar_contenido(tema, plataforma, audiencia, tono, nombre_modelo, info_empresa):
     llm = obtener_modelo(nombre_modelo)
     chain = content_template | llm | StrOutputParser()
     return chain.invoke({
@@ -13,4 +13,5 @@ def generar_contenido(tema, plataforma, audiencia, tono, nombre_modelo):
         "plataforma": plataforma,
         "audiencia": audiencia,
         "tono": tono,
+        "info_empresa": info_empresa,
     })
