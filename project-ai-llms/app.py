@@ -3,6 +3,12 @@ from src.generators.content_generator import generar_contenido
 from src.config import MODELOS_DISPONIBLES
 from src.image_search import buscar_imagenes
 
+IDIOMAS = {
+    "Español": "español",
+    "Inglés": "inglés",
+    "Francés": "francés",
+    "Italiano": "italiano",
+}
 
 st.title("Generador de Contenido con IA")
 st.write("Crea contenido adaptado a cada plataforma y audiencia.")
@@ -20,17 +26,20 @@ info_empresa = st.text_area(
     placeholder="Ej: Somos una cafetería artesanal de Madrid, tono cercano y sostenible..."
 )
 
+idioma_elegido = st.selectbox("Idioma", list(IDIOMAS.keys()))
+idioma = IDIOMAS[idioma_elegido]
+
 modelo = st.selectbox(
     "Modelo de IA",
     list(MODELOS_DISPONIBLES.keys())
 )
 
-info = info_empresa if info_empresa else "No se ha proporcionado información específica de empresa; genera contenido genérico."
 
 if st.button("Generar contenido"):
     if tema and audiencia and tono:
+        info = info_empresa if info_empresa else "No se ha proporcionado información específica de empresa; genera contenido genérico."
         with st.spinner("Generando..."):
-            resultado = generar_contenido(tema, plataforma, audiencia, tono, modelo, info)
+            resultado = generar_contenido(tema, plataforma, audiencia, tono, modelo, info, idioma)
         st.subheader("Resultado:")
         st.write(resultado)
         st.subheader("Imágenes sugeridas:")
