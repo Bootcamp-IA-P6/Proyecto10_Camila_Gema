@@ -2,11 +2,20 @@ import streamlit as st
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 import os
-from dotenv import load_dotenv
 import urllib.parse
+from dotenv import load_dotenv
 
-# Cargar las claves
-load_dotenv()
+# 1. FORZAMOS a que el .env machaque cualquier caché del sistema
+load_dotenv(override=True)
+
+# 2. DEBUG: Imprimimos los primeros 10 caracteres de la clave en tu terminal
+# (Así comprobamos qué está leyendo Python exactamente)
+clave_actual = os.getenv("LANGCHAIN_API_KEY")
+if clave_actual:
+    print(f"🛠️ DEBUG - La clave que está usando Python empieza por: {clave_actual[:10]}...")
+else:
+    print("❌ DEBUG - ERROR: Python dice que la clave está VACÍA. No encuentra el .env")
+
 
 # Configuración de la página
 st.set_page_config(page_title="Generador de Contenido", page_icon="🤖", layout="wide")
@@ -19,6 +28,12 @@ with st.sidebar:
     modelo_seleccionado = st.selectbox(
         "Selecciona el Motor de IA:",
         ("llama-3.1-8b-instant", "mixtral-8x7b-32768")
+    )
+    
+    # NUEVO: Selector de Idioma
+    idioma_salida = st.selectbox(
+        "🌐 Idioma de generación:",
+        ("Castellano", "Inglés", "Francés", "Italiano")
     )
     
     # 2. Contexto de la Empresa / Persona
@@ -54,6 +69,7 @@ if len(st.session_state.mensajes) == 0:
     Eres un experto creador de contenido. Trabajas para {nombre_empresa}.
     Tu estilo de comunicación debe seguir estrictamente estas reglas: {tono_empresa}
     Adapta siempre el contenido a la plataforma que te pida el usuario.
+    REGLA DE IDIOMA OBLIGATORIA: Todo el contenido que generes DEBE estar escrito en {idioma_salida}.
     """
     st.session_state.mensajes.append(SystemMessage(content=prompt_sistema))
 
