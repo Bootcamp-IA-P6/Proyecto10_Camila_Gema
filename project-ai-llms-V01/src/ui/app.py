@@ -17,6 +17,7 @@ from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
 
 # IMPORTACIONES MODULARES (Ahora Python sí encontrará estas rutas)
 from src.tools.finance import obtener_precio_accion
+from src.tools.image_gen import generar_imagen_hf
 from src.prompts.system_prompts import obtener_prompt_agente
 
 # 1. FORZAMOS a que el .env machaque cualquier caché del sistema
@@ -103,16 +104,32 @@ if texto_usuario := st.chat_input("Ej: ¿A cuánto están las acciones de Apple 
             
             texto_respuesta = respuesta_agente["output"]
             st.markdown(texto_respuesta)
+        # --- SUB-PROCESO: GENERACIÓN DE IMAGEN CONTEXTUAL CON HUGGING FACE ---
+        with st.spinner("Pintando imagen con Inteligencia Artificial... 🎨"):
+            try:
+                # 1. Le pedimos al LLM que invente un prompt descriptivo en inglés para la imagen
+                prompt_creativo = f"Escribe un prompt en inglés de máximo 20 palabras para generar una imagen hiperrealista que acompañe a este texto. Solo el prompt, nada más. Texto: {texto_respuesta}"
+                respuesta_hf_prompt = llm.invoke(prompt_creativo)
+                prompt_imagen_limpio = respuesta_hf_prompt.content.strip()
+                
+                # 2. Llamamos a nuestra nueva herramienta de Hugging Face
+                imagen_bytes = generar_imagen_hf(prompt_imagen_limpio)
+                
+                # 3. Streamlit renderiza directamente los bytes de la imagen generada
+                st.image(imagen_bytes, caption=f"Prompt utilizado: '{prompt_imagen_limpio}'")
+                
+            except Exception as e:
+                st.warning(f"No se pudo generar la imagen: {e}")
             
         # --- SUB-PROCESO: GENERACIÓN DE IMAGEN CONTEXTUAL ---
-        with st.spinner("Buscando imagen contextualizada... 🎨"):
-            prompt_imagen = f"Analiza esta petición y devuelve UNA ÚNICA palabra clave en INGLÉS que sea un objeto físico relacionado. No escribas nada más. Petición: {texto_usuario}"
-            respuesta_palabras = llm.invoke(prompt_imagen)
+        # with st.spinner("Buscando imagen contextualizada... 🎨"):
+        #     prompt_imagen = f"Analiza esta petición y devuelve UNA ÚNICA palabra clave en INGLÉS que sea un objeto físico relacionado. No escribas nada más. Petición: {texto_usuario}"
+        #     respuesta_palabras = llm.invoke(prompt_imagen)
             
-            palabra_clave = respuesta_palabras.content.strip().replace(".", "").replace('"', '').replace(" ", "").lower()
-            url_imagen = f"https://loremflickr.com/800/400/{palabra_clave}/all"
+        #     palabra_clave = respuesta_palabras.content.strip().replace(".", "").replace('"', '').replace(" ", "").lower()
+        #     url_imagen = f"https://loremflickr.com/800/400/{palabra_clave}/all"
             
-            st.image(url_imagen, caption=f"Imagen para la etiqueta: '{palabra_clave}'")
+        #     st.image(url_imagen, caption=f"Imagen para la etiqueta: '{palabra_clave}'")
             
         # 3. Persistencia en la memoria del sistema
         st.session_state.mensajes.append(HumanMessage(content=texto_usuario))
