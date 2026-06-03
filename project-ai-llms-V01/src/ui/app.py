@@ -19,12 +19,14 @@ from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
 from src.tools.finance import obtener_precio_accion
 from src.tools.image_gen import generar_imagen_hf
 from src.prompts.system_prompts import obtener_prompt_agente
+from src.tools.rag_engine import investigar_y_sintetizar_ciencia
+
 
 # 1. FORZAMOS a que el .env machaque cualquier caché del sistema
 load_dotenv(override=True)
 
 # Lista oficial de herramientas que usará el Agente
-herramientas = [obtener_precio_accion]
+herramientas = [obtener_precio_accion, investigar_y_sintetizar_ciencia]
 
 # --- CONFIGURACIÓN DE LA PÁGINA ---
 st.set_page_config(page_title="Generador de Contenido", page_icon="🤖", layout="wide")
