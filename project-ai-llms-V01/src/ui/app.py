@@ -110,7 +110,15 @@ if texto_usuario := st.chat_input("Ej: ¿A cuánto están las acciones de Apple 
         with st.spinner("Pintando imagen con Inteligencia Artificial... 🎨"):
             try:
                 # 1. Le pedimos al LLM que invente un prompt descriptivo en inglés para la imagen
-                prompt_creativo = f"Escribe un prompt en inglés de máximo 20 palabras para generar una imagen hiperrealista que acompañe a este texto. Solo el prompt, nada más. Texto: {texto_respuesta}"
+                prompt_creativo = (
+    f"You are an image prompt generator. "
+    f"Based on this text, write a SHORT image prompt in English "
+    f"of maximum 10 words describing a CONCRETE and SPECIFIC visual concept "
+    f"directly related to the scientific or financial topic discussed. "
+    f"Return ONLY the prompt, no explanations. "
+    f"For example: if the text is about neural networks, return 'neural network diagram with connected nodes'. "
+    f"Text: {texto_respuesta[:500]}"
+)
                 respuesta_hf_prompt = llm.invoke(prompt_creativo)
                 prompt_imagen_limpio = respuesta_hf_prompt.content.strip()
                 
