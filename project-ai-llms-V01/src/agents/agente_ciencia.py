@@ -12,7 +12,7 @@
 # =====================================================================
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
 from src.tools.rag_engine import investigar_y_sintetizar_ciencia
 
 

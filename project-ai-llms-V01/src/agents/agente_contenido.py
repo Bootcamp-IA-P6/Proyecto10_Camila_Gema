@@ -13,7 +13,7 @@
 # =====================================================================
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import AgentExecutor, create_tool_calling_agent
+from langchain_classic.agents import AgentExecutor, create_tool_calling_agent
 
 
 def crear_agente_contenido(llm, nombre_empresa: str, tono_empresa: str, idioma_salida: str):
