@@ -1,6 +1,4 @@
-# NOTA: Este archivo es la versión original del RAG.
-# Está reemplazado por graph_rag_engine.py que añade
-# el grafo de conocimiento. Se mantiene como referencia.
+# src/tools/graph_rag_engine.py
 
 # =====================================================================
 # MOTOR DE GRAPH RAG
@@ -32,14 +30,9 @@ logger = logging.getLogger("graph_rag_engine")
 # =====================================================================
 # RUTAS
 # =====================================================================
-# os.path.dirname(__file__)  → carpeta de este script (project-ai-llms-V01/src/)
-# "../.."                    → subimos hasta la raíz del proyecto
-RUTA_VECTORSTORE = os.path.join(
-    os.path.dirname(__file__), "..", "..", "vectorstore_ia"
-)
-RUTA_GRAFO = os.path.join(
-    os.path.dirname(__file__), "..", "knowledge_graph.pkl"
-)
+RAIZ_PROYECTO    = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+RUTA_VECTORSTORE = os.path.join(RAIZ_PROYECTO, "vectorstore_ia")
+RUTA_GRAFO       = os.path.join(RAIZ_PROYECTO, "knowledge_graph.pkl")
 
 # =====================================================================
 # CARGAMOS RECURSOS UNA SOLA VEZ AL ARRANCAR LA APP
