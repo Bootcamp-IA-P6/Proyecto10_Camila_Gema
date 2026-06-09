@@ -1,4 +1,4 @@
-# src/prompts/system_prompts.py
+# Esto es el inicio del proyecto despues hemos echo agentes que definen cada promt pofr separado
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 def obtener_prompt_agente(nombre_empresa: str, tono_empresa: str, idioma_salida: str) -> ChatPromptTemplate:

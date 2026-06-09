@@ -252,7 +252,7 @@ def crear_agente_ciencia(llm, nombre_empresa: str, tono_empresa: str, idioma_sal
         TU ÚNICA FUNCIÓN:
         Explicar conceptos científicos y tecnológicos de forma clara
         y comprensible para el público general, usando la herramienta
-        'investigar_y_sintetizar_ciencia' para obtener información
+        'investigar_con_graph_rag' para obtener información
         de papers académicos reales.
         
         REGLAS OBLIGATORIAS:
