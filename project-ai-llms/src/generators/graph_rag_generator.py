@@ -35,6 +35,7 @@ def generar_divulgacion_graph(tema, nombre_modelo, idioma, cantidad_papers=3):
         "entidades": resultado_consulta["entidades_encontradas"],
         "contexto_grafo": resultado_consulta["contexto"],
         "evaluacion": evaluacion,
+        "grafo": grafo,
         "stats_grafo": {
             "nodos": grafo.number_of_nodes(),
             "aristas": grafo.number_of_edges(),

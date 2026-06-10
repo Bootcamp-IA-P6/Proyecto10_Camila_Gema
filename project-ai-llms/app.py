@@ -1,11 +1,13 @@
 import streamlit as st
+import streamlit.components.v1 as components
 from src.config import MODELOS_DISPONIBLES
 from src.generators.content_generator import generar_contenido
 from src.generators.rag_generator import generar_divulgacion
 from src.generators.news_generator import generar_newsletter
+from src.generators.graph_rag_generator import generar_divulgacion_graph
 from src.image_search import buscar_imagenes
 from src.router.agent_router import enrutar_peticion
-from src.generators.graph_rag_generator import generar_divulgacion_graph
+from src.graph_rag.graph_visualizer import visualizar_grafo
 
 IDIOMAS = {
     "Español": "español",
@@ -13,6 +15,51 @@ IDIOMAS = {
     "Francés": "francés",
     "Italiano": "italiano",
 }
+
+
+def mostrar_evaluacion(evaluacion):
+    """Muestra la evaluación del juez con color según puntuación."""
+    p = evaluacion["puntuacion"]
+    if p >= 4:
+        st.success(f"✓ Fiabilidad: {p}/5 — {evaluacion['justificacion']}")
+    elif p >= 2:
+        st.warning(f"⚠ Fiabilidad: {p}/5 — {evaluacion['justificacion']}")
+    else:
+        st.error(f"✗ Fiabilidad: {p}/5 — {evaluacion['justificacion']}")
+
+
+def mostrar_resultado_rag_vectorial(explicacion, fuentes, evaluacion):
+    """Muestra el resultado del RAG vectorial."""
+    st.subheader("Explicación divulgativa:")
+    st.write(explicacion)
+    mostrar_evaluacion(evaluacion)
+    st.subheader("Fuentes:")
+    unicas = {f["url"]: f for f in fuentes}.values()
+    for f in unicas:
+        st.markdown(f"- [{f['titulo']}]({f['url']})")
+
+
+def mostrar_resultado_graph_rag(resultado):
+    """Muestra el resultado del Graph RAG."""
+    st.subheader("Explicación divulgativa (Graph RAG):")
+    st.write(resultado["explicacion"])
+    mostrar_evaluacion(resultado["evaluacion"])
+
+    st.subheader("Estadísticas del grafo:")
+    st.write(f"**{resultado['stats_grafo']['nodos']}** nodos, **{resultado['stats_grafo']['aristas']}** aristas")
+
+    with st.expander("Ver relaciones del grafo usadas como contexto"):
+        for rel in resultado["contexto_grafo"]:
+            st.markdown(f"- {rel}")
+
+    with st.expander("Ver grafo de conocimiento interactivo"):
+        html_grafo = visualizar_grafo(resultado["grafo"])
+        components.html(html_grafo, height=520, scrolling=False)
+
+    st.subheader("Papers usados:")
+    for paper in resultado["papers"]:
+        st.markdown(f"- [{paper['titulo']}]({paper['url']})")
+
 
 st.title("Generador de Contenido con IA")
 st.write("Crea contenido adaptado a cada plataforma y audiencia.")
@@ -41,7 +88,6 @@ with tab_auto:
         else:
             st.warning("Por favor, escribe una petición.")
 
-    # Si ya se enrutó, mostrar el agente elegido y el formulario adaptado
     if "agente_elegido" in st.session_state:
         agente = st.session_state["agente_elegido"]
         st.info(f"**Agente elegido:** `{agente}`\n\n{st.session_state['justificacion_router']}")
@@ -94,47 +140,13 @@ with tab_auto:
                         explicacion, fuentes, evaluacion = generar_divulgacion(
                             st.session_state["peticion_original"], modelo_e, IDIOMAS[idioma_e],
                         )
-                    st.subheader("Explicación divulgativa:")
-                    st.write(explicacion)
-
-                    p = evaluacion["puntuacion"]
-                    if p >= 4:
-                        st.success(f"✓ Fiabilidad: {p}/5 — {evaluacion['justificacion']}")
-                    elif p >= 2:
-                        st.warning(f"⚠ Fiabilidad: {p}/5 — {evaluacion['justificacion']}")
-                    else:
-                        st.error(f"✗ Fiabilidad: {p}/5 — {evaluacion['justificacion']}")
-
-                    st.subheader("Fuentes:")
-                    unicas = {f["url"]: f for f in fuentes}.values()
-                    for f in unicas:
-                        st.markdown(f"- [{f['titulo']}]({f['url']})")
+                    mostrar_resultado_rag_vectorial(explicacion, fuentes, evaluacion)
                 else:
                     with st.spinner("Construyendo grafo de conocimiento desde arXiv (puede tardar)..."):
                         resultado = generar_divulgacion_graph(
                             st.session_state["peticion_original"], modelo_e, IDIOMAS[idioma_e], cantidad_papers=2,
                         )
-                    st.subheader("Explicación divulgativa (Graph RAG):")
-                    st.write(resultado["explicacion"])
-
-                    p = resultado["evaluacion"]["puntuacion"]
-                    if p >= 4:
-                        st.success(f"✓ Fiabilidad: {p}/5 — {resultado['evaluacion']['justificacion']}")
-                    elif p >= 2:
-                        st.warning(f"⚠ Fiabilidad: {p}/5 — {resultado['evaluacion']['justificacion']}")
-                    else:
-                        st.error(f"✗ Fiabilidad: {p}/5 — {resultado['evaluacion']['justificacion']}")
-
-                    st.subheader("Estadísticas del grafo:")
-                    st.write(f"**{resultado['stats_grafo']['nodos']}** nodos, **{resultado['stats_grafo']['aristas']}** aristas")
-
-                    with st.expander("Ver relaciones del grafo usadas como contexto"):
-                        for rel in resultado["contexto_grafo"]:
-                            st.markdown(f"- {rel}")
-
-                    st.subheader("Papers usados:")
-                    for paper in resultado["papers"]:
-                        st.markdown(f"- [{paper['titulo']}]({paper['url']})")
+                    mostrar_resultado_graph_rag(resultado)
 
         elif agente == "newsletter_financiera":
             idioma_e = st.selectbox("Idioma", list(IDIOMAS.keys()), key="auto_idi_news")
@@ -151,7 +163,7 @@ with tab_auto:
                     st.markdown(f"- **{n['fuente']}**: [{n['titular']}]({n['url']})")
 
 # ============================================================
-# PESTAÑA 2: MODO MANUAL (pestañas viejas anidadas)
+# PESTAÑA 2: MODO MANUAL
 # ============================================================
 with tab_manual:
     st.write("Si prefieres elegir el agente tú misma, usa estas pestañas.")
@@ -203,45 +215,12 @@ with tab_manual:
                 if modo_rag_m.startswith("RAG vectorial"):
                     with st.spinner("Buscando papers y generando..."):
                         explicacion, fuentes, evaluacion = generar_divulgacion(tema_rag, modelo_e, IDIOMAS[idioma_e])
-                    st.subheader("Explicación divulgativa:")
-                    st.write(explicacion)
-
-                    p = evaluacion["puntuacion"]
-                    if p >= 4:
-                        st.success(f"✓ Fiabilidad: {p}/5 — {evaluacion['justificacion']}")
-                    elif p >= 2:
-                        st.warning(f"⚠ Fiabilidad: {p}/5 — {evaluacion['justificacion']}")
-                    else:
-                        st.error(f"✗ Fiabilidad: {p}/5 — {evaluacion['justificacion']}")
-
-                    st.subheader("Fuentes:")
-                    unicas = {f["url"]: f for f in fuentes}.values()
-                    for f in unicas:
-                        st.markdown(f"- [{f['titulo']}]({f['url']})")
+                    mostrar_resultado_rag_vectorial(explicacion, fuentes, evaluacion)
                 else:
                     with st.spinner("Construyendo grafo de conocimiento desde arXiv (puede tardar)..."):
                         resultado = generar_divulgacion_graph(tema_rag, modelo_e, IDIOMAS[idioma_e], cantidad_papers=2)
-                    st.subheader("Explicación divulgativa (Graph RAG):")
-                    st.write(resultado["explicacion"])
+                    mostrar_resultado_graph_rag(resultado)
 
-                    p = resultado["evaluacion"]["puntuacion"]
-                    if p >= 4:
-                        st.success(f"✓ Fiabilidad: {p}/5 — {resultado['evaluacion']['justificacion']}")
-                    elif p >= 2:
-                        st.warning(f"⚠ Fiabilidad: {p}/5 — {resultado['evaluacion']['justificacion']}")
-                    else:
-                        st.error(f"✗ Fiabilidad: {p}/5 — {resultado['evaluacion']['justificacion']}")
-
-                    st.subheader("Estadísticas del grafo:")
-                    st.write(f"**{resultado['stats_grafo']['nodos']}** nodos, **{resultado['stats_grafo']['aristas']}** aristas")
-
-                    with st.expander("Ver relaciones del grafo usadas como contexto"):
-                        for rel in resultado["contexto_grafo"]:
-                            st.markdown(f"- {rel}")
-
-                    st.subheader("Papers usados:")
-                    for paper in resultado["papers"]:
-                        st.markdown(f"- [{paper['titulo']}]({paper['url']})")
     with sub_news:
         idioma_e = st.selectbox("Idioma", list(IDIOMAS.keys()), key="m_idi_news")
         modelo_e = st.selectbox("Modelo de IA", list(MODELOS_DISPONIBLES.keys()), key="m_mod_news")
