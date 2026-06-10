@@ -75,9 +75,18 @@ with tab_rag:
     if st.button("Generar divulgación", key="btn_rag"):
         if tema_rag:
             with st.spinner("Buscando papers y generando..."):
-                explicacion, fuentes = generar_divulgacion(tema_rag, modelo_rag, idioma_rag)
+                explicacion, fuentes, evaluacion = generar_divulgacion(tema_rag, modelo_rag, idioma_rag)
             st.subheader("Explicación divulgativa:")
             st.write(explicacion)
+
+            puntuacion = evaluacion["puntuacion"]
+            if puntuacion >= 4:
+                st.success(f"✓ Fiabilidad: {puntuacion}/5 — {evaluacion['justificacion']}")
+            elif puntuacion >= 2:
+                st.warning(f"⚠ Fiabilidad: {puntuacion}/5 — {evaluacion['justificacion']}")
+            else:
+                st.error(f"✗ Fiabilidad: {puntuacion}/5 — {evaluacion['justificacion']}")
+
             st.subheader("Fuentes:")
             fuentes_unicas = {f["url"]: f for f in fuentes}.values()
             for f in fuentes_unicas:
