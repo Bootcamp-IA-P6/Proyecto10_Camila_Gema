@@ -646,7 +646,7 @@ sys.path.append(ruta_raiz)
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 from src.agents.enrutador import enrutar
-from src.tools.image_gen import generar_imagen_hf
+from src.utils.image_gen import generar_imagen_hf
 from src.tools.guardarrailes import evaluar_respuesta, mostrar_resultado_evaluacion
 
 load_dotenv(override=True)
@@ -737,19 +737,31 @@ html, body, .stApp {
 .stTabs [data-baseweb="tab-list"] {
     background: rgba(30, 30, 53, 0.9) !important;
     border-radius: 18px !important;
-    padding: 8px !important;
+    padding: 10px !important;
     border: 1px solid var(--border-bright) !important;
-    gap: 6px !important;
+    gap: 8px !important;
 }
-.stTabs [data-baseweb="tab"] {
+stTabs [data-baseweb="tab"] {
     background: transparent !important;
-    color: var(--text-secondary) !important;
+    color: #ffffff !important;
     border-radius: 14px !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-weight: 700 !important;
-    font-size: 1.3rem !important;
-    padding: 18px 34px !important;
+    font-size: 1.6rem !important;        /* ← MÁS GRANDE (antes 1.3rem) */
+    padding: 22px 42px !important;       /* ← MÁS ALTO Y ANCHO (antes 18px 34px) */
     border: none !important;
+    min-height: 70px !important;         /* ← ALTURA MÍNIMA GARANTIZADA */
+    white-space: nowrap !important;
+}
+/* Este selector extra fuerza el tamaño del texto dentro del tab */
+.stTabs [data-baseweb="tab"] span,
+.stTabs [data-baseweb="tab"] div,
+.stTabs [data-baseweb="tab"] p,
+button[data-baseweb="tab"] span {
+    font-size: 1.6rem !important;
+    font-weight: 700 !important;
+    font-family: 'Plus Jakarta Sans', sans-serif !important;
+    color: #ffffff !important;
 }
 .stTabs [aria-selected="true"] {
     background: linear-gradient(135deg, #8b7cf8, #60a5fa) !important;
@@ -1001,8 +1013,8 @@ for k in ["msgs_chat","msgs_ciencia","msgs_finanzas","msgs_contenido"]:
 col_h1, col_h2 = st.columns([2, 1])
 with col_h1:
     st.markdown("""
-    <h1 style='font-size:2.8rem; font-weight:800; color:#f0efff;
-               letter-spacing:-0.03em; margin:0;'>Orquestador de Agentes</h1>
+    <h1 style='font-size:5rem; font-weight:800; color:#f0efff;
+               letter-spacing:-0.03em; margin:0;'>NexusAI — Agent Hub</h1>
     <p style='color:#a8a8c8; font-size:1.3rem; margin:10px 0 0;'>
         Crea y distribuye contenido de alta precisión impulsado por inteligencia artificial.
     </p>
@@ -1119,8 +1131,8 @@ with tab1:
     <div class="agent-card">
         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
             <div>
-                <div style='font-size:1.6rem; font-weight:800; color:#f0efff;'>🧠 Agente General</div>
-                <div style='font-size:1.15rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
+                <div style='font-size:2.5rem; font-weight:800; color:#f0efff;'>🧠 Agente General</div>
+                <div style='font-size:2rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
                     El enrutador detecta automáticamente si tu pregunta es sobre
                     <b style='color:#a78bfa;'>ciencia</b>,
                     <b style='color:#fbbf24;'>finanzas</b> o
@@ -1144,8 +1156,8 @@ with tab2:
          background:linear-gradient(135deg,rgba(139,124,248,0.1),rgba(30,30,53,0.9));'>
         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
             <div>
-                <div style='font-size:1.6rem; font-weight:800; color:#f0efff;'>🔬 Agente Científico</div>
-                <div style='font-size:1.15rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
+                <div style='font-size:2.5rem; font-weight:800; color:#f0efff;'>🔬 Agente Científico</div>
+                <div style='font-size:2rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
                     Consulta nuestra base de datos de papers académicos sobre
                     <b style='color:#a78bfa;'>Inteligencia Artificial</b>.
                     Respuestas basadas en investigación real, sin alucinaciones.
@@ -1167,8 +1179,8 @@ with tab3:
          background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(30,30,53,0.9));'>
         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
             <div>
-                <div style='font-size:1.6rem; font-weight:800; color:#f0efff;'>📈 Agente Financiero</div>
-                <div style='font-size:1.15rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
+                <div style='font-size:2.5rem; font-weight:800; color:#f0efff;'>📈 Agente Financiero</div>
+                <div style='font-size:2rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
                     Precios de acciones en <b style='color:#fbbf24;'>tiempo real</b> vía yfinance.
                 </div>
             </div>
@@ -1202,8 +1214,8 @@ with tab4:
          background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(30,30,53,0.9));'>
         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
             <div>
-                <div style='font-size:1.6rem; font-weight:800; color:#f0efff;'>✍️ Agente de Contenido Social</div>
-                <div style='font-size:1.15rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
+                <div style='font-size:2.5rem; font-weight:800; color:#f0efff;'>✍️ Agente de Contenido Social</div>
+                <div style='font-size:2rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
                     Posts <b style='color:#60a5fa;'>listos para publicar</b>.
                     Selecciona la plataforma y describe tu contenido.
                 </div>
@@ -1277,7 +1289,7 @@ with tab4:
 # ── TAB 5 ────────────────────────────────
 with tab5:
     st.markdown("""
-    <h2 style='font-size:2rem; font-weight:800; color:#f0efff; margin:0 0 0.5rem;'>
+    <h2 style='font-size:2.5rem; font-weight:800; color:#f0efff; margin:0 0 0.5rem;'>
         ⚙️ Sistema y Arquitectura
     </h2>
     <p style='color:#a8a8c8; font-size:1.2rem; margin:0 0 2rem;'>

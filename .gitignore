@@ -5,3 +5,12 @@ __pycache__/
 venv/
 .DS_Store
 .env
+# PDFs de papers científicos
+papers_ia/
+
+# Bases de datos generadas localmente
+vectorstore_ia/
+knowledge_graph.pkl
+
+# Variables de entorno
+.env
