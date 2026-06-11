@@ -9,9 +9,16 @@
 # from langchain_groq import ChatGroq
 # from langchain_core.messages import HumanMessage, AIMessage
 # from src.agents.enrutador import enrutar
-# from src.tools.image_gen import generar_imagen_hf
+# from src.utils.image_gen import generar_imagen_hf
+# from src.tools.guardarrailes import evaluar_respuesta, mostrar_resultado_evaluacion
 
 # load_dotenv(override=True)
+
+# # Activamos trazabilidad con LangSmith
+# os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2", "true")
+# os.environ["LANGCHAIN_ENDPOINT"]   = os.getenv("LANGCHAIN_ENDPOINT", "https://eu.api.smith.langchain.com")
+# os.environ["LANGCHAIN_API_KEY"]    = os.getenv("LANGCHAIN_API_KEY", "")
+# os.environ["LANGCHAIN_PROJECT"]    = os.getenv("LANGCHAIN_PROJECT", "Mi_Chatbot_Digital_Content")
 
 # st.set_page_config(
 #     page_title="NexusAI — Agent Hub",
@@ -93,19 +100,31 @@
 # .stTabs [data-baseweb="tab-list"] {
 #     background: rgba(30, 30, 53, 0.9) !important;
 #     border-radius: 18px !important;
-#     padding: 8px !important;
+#     padding: 10px !important;
 #     border: 1px solid var(--border-bright) !important;
-#     gap: 6px !important;
+#     gap: 8px !important;
 # }
-# .stTabs [data-baseweb="tab"] {
+# stTabs [data-baseweb="tab"] {
 #     background: transparent !important;
-#     color: var(--text-secondary) !important;
+#     color: #ffffff !important;
 #     border-radius: 14px !important;
 #     font-family: 'Plus Jakarta Sans', sans-serif !important;
 #     font-weight: 700 !important;
-#     font-size: 1.3rem !important;
-#     padding: 18px 34px !important;
+#     font-size: 1.6rem !important;        /* ← MÁS GRANDE (antes 1.3rem) */
+#     padding: 22px 42px !important;       /* ← MÁS ALTO Y ANCHO (antes 18px 34px) */
 #     border: none !important;
+#     min-height: 70px !important;         /* ← ALTURA MÍNIMA GARANTIZADA */
+#     white-space: nowrap !important;
+# }
+# /* Este selector extra fuerza el tamaño del texto dentro del tab */
+# .stTabs [data-baseweb="tab"] span,
+# .stTabs [data-baseweb="tab"] div,
+# .stTabs [data-baseweb="tab"] p,
+# button[data-baseweb="tab"] span {
+#     font-size: 1.6rem !important;
+#     font-weight: 700 !important;
+#     font-family: 'Plus Jakarta Sans', sans-serif !important;
+#     color: #ffffff !important;
 # }
 # .stTabs [aria-selected="true"] {
 #     background: linear-gradient(135deg, #8b7cf8, #60a5fa) !important;
@@ -357,8 +376,8 @@
 # col_h1, col_h2 = st.columns([2, 1])
 # with col_h1:
 #     st.markdown("""
-#     <h1 style='font-size:2.8rem; font-weight:800; color:#f0efff;
-#                letter-spacing:-0.03em; margin:0;'>Orquestador de Agentes</h1>
+#     <h1 style='font-size:5rem; font-weight:800; color:#f0efff;
+#                letter-spacing:-0.03em; margin:0;'>NexusAI — Agent Hub</h1>
 #     <p style='color:#a8a8c8; font-size:1.3rem; margin:10px 0 0;'>
 #         Crea y distribuye contenido de alta precisión impulsado por inteligencia artificial.
 #     </p>
@@ -390,11 +409,58 @@
 #     with st.chat_message("user"):
 #         st.markdown(texto)
 #     with st.chat_message("assistant"):
+
+#         # PASO 1: El agente genera la respuesta
 #         with st.spinner("Procesando con IA... ⚡"):
-#             resp = enrutar(mensaje=texto, historial=st.session_state[key],
-#                            llm=llm, nombre_empresa=nombre_empresa,
-#                            tono_empresa=tono_empresa, idioma_salida=idioma_salida)
-#             st.markdown(resp)
+#             resp = enrutar(
+#                 mensaje=texto, historial=st.session_state[key],
+#                 llm=llm, nombre_empresa=nombre_empresa,
+#                 tono_empresa=tono_empresa, idioma_salida=idioma_salida
+#             )
+
+#         # PASO 2: El guardarraíl evalúa la respuesta
+#         with st.spinner("Evaluando calidad... 🔍"):
+#             groq_key   = os.getenv("GROQ_API_KEY", "")
+#             evaluacion = evaluar_respuesta(
+#                 pregunta=texto,
+#                 respuesta=resp,
+#                 idioma_esperado=idioma_salida,
+#                 groq_key=groq_key
+#             )
+
+#         # PASO 3: Mostramos la respuesta siempre
+#         st.markdown(resp)
+
+#         # PASO 4: Si suspende mostramos aviso
+#         aviso = mostrar_resultado_evaluacion(evaluacion)
+#         if aviso:
+#             st.markdown(aviso)
+
+#         # PASO 5: Métricas de calidad en expander colapsado
+#         with st.expander(f"📊 Evaluación de calidad — Media: {evaluacion['puntuacion_media']}/10"):
+#             col1, col2, col3 = st.columns(3)
+#             with col1:
+#                 color = "green" if evaluacion["puntuacion_relevancia"] >= 6 else "red"
+#                 st.markdown("**Relevancia**")
+#                 st.markdown(f":{color}[{evaluacion['puntuacion_relevancia']}/10]")
+#             with col2:
+#                 color = "green" if evaluacion["puntuacion_calidad"] >= 6 else "red"
+#                 st.markdown("**Calidad**")
+#                 st.markdown(f":{color}[{evaluacion['puntuacion_calidad']}/10]")
+#             with col3:
+#                 color = "green" if evaluacion["puntuacion_idioma"] >= 6 else "red"
+#                 st.markdown("**Idioma**")
+#                 st.markdown(f":{color}[{evaluacion['puntuacion_idioma']}/10]")
+
+#             detalles = evaluacion.get("detalles", {})
+#             if "relevancia" in detalles:
+#                 st.caption(f"💬 {detalles['relevancia'].get('comentario','')}")
+#             if "calidad" in detalles:
+#                 st.caption(f"💬 {detalles['calidad'].get('comentario','')}")
+#             if "idioma" in detalles:
+#                 st.caption(f"💬 {detalles['idioma'].get('comentario','')}")
+
+#         # PASO 6: Imagen
 #         if imagen:
 #             with st.spinner("Generando imagen... 🎨"):
 #                 try:
@@ -405,6 +471,7 @@
 #                     st.image(generar_imagen_hf(p), caption=f"🎨 {p}")
 #                 except Exception as e:
 #                     st.caption(f"⚠️ Imagen no disponible: {e}")
+
 #     st.session_state[key].append(HumanMessage(content=texto))
 #     st.session_state[key].append(AIMessage(content=resp))
 
@@ -427,8 +494,8 @@
 #     <div class="agent-card">
 #         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
 #             <div>
-#                 <div style='font-size:1.6rem; font-weight:800; color:#f0efff;'>🧠 Agente General</div>
-#                 <div style='font-size:1.15rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
+#                 <div style='font-size:2.5rem; font-weight:800; color:#f0efff;'>🧠 Agente General</div>
+#                 <div style='font-size:2rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
 #                     El enrutador detecta automáticamente si tu pregunta es sobre
 #                     <b style='color:#a78bfa;'>ciencia</b>,
 #                     <b style='color:#fbbf24;'>finanzas</b> o
@@ -452,8 +519,8 @@
 #          background:linear-gradient(135deg,rgba(139,124,248,0.1),rgba(30,30,53,0.9));'>
 #         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
 #             <div>
-#                 <div style='font-size:1.6rem; font-weight:800; color:#f0efff;'>🔬 Agente Científico</div>
-#                 <div style='font-size:1.15rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
+#                 <div style='font-size:2.5rem; font-weight:800; color:#f0efff;'>🔬 Agente Científico</div>
+#                 <div style='font-size:2rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
 #                     Consulta nuestra base de datos de papers académicos sobre
 #                     <b style='color:#a78bfa;'>Inteligencia Artificial</b>.
 #                     Respuestas basadas en investigación real, sin alucinaciones.
@@ -475,8 +542,8 @@
 #          background:linear-gradient(135deg,rgba(251,191,36,0.08),rgba(30,30,53,0.9));'>
 #         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
 #             <div>
-#                 <div style='font-size:1.6rem; font-weight:800; color:#f0efff;'>📈 Agente Financiero</div>
-#                 <div style='font-size:1.15rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
+#                 <div style='font-size:2.5rem; font-weight:800; color:#f0efff;'>📈 Agente Financiero</div>
+#                 <div style='font-size:2rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
 #                     Precios de acciones en <b style='color:#fbbf24;'>tiempo real</b> vía yfinance.
 #                 </div>
 #             </div>
@@ -510,8 +577,8 @@
 #          background:linear-gradient(135deg,rgba(96,165,250,0.08),rgba(30,30,53,0.9));'>
 #         <div style='display:flex; justify-content:space-between; align-items:flex-start;'>
 #             <div>
-#                 <div style='font-size:1.6rem; font-weight:800; color:#f0efff;'>✍️ Agente de Contenido Social</div>
-#                 <div style='font-size:1.15rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
+#                 <div style='font-size:2.5rem; font-weight:800; color:#f0efff;'>✍️ Agente de Contenido Social</div>
+#                 <div style='font-size:2rem; color:#a8a8c8; margin-top:8px; line-height:1.7;'>
 #                     Posts <b style='color:#60a5fa;'>listos para publicar</b>.
 #                     Selecciona la plataforma y describe tu contenido.
 #                 </div>
@@ -585,7 +652,7 @@
 # # ── TAB 5 ────────────────────────────────
 # with tab5:
 #     st.markdown("""
-#     <h2 style='font-size:2rem; font-weight:800; color:#f0efff; margin:0 0 0.5rem;'>
+#     <h2 style='font-size:2.5rem; font-weight:800; color:#f0efff; margin:0 0 0.5rem;'>
 #         ⚙️ Sistema y Arquitectura
 #     </h2>
 #     <p style='color:#a8a8c8; font-size:1.2rem; margin:0 0 2rem;'>
@@ -635,6 +702,8 @@
 
 # src/ui/app.py
 
+# src/ui/app.py
+
 import streamlit as st
 import os
 import sys
@@ -646,16 +715,13 @@ sys.path.append(ruta_raiz)
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage
 from src.agents.enrutador import enrutar
-from src.utils.image_gen import generar_imagen_hf
+from src.agents.agente_ciencia import crear_agente_ciencia
+from src.agents.agente_finanzas import crear_agente_finanzas
+from src.agents.agente_contenido import crear_agente_contenido
+from src.utils.image_gen import generar_imagen_hf  
 from src.tools.guardarrailes import evaluar_respuesta, mostrar_resultado_evaluacion
 
 load_dotenv(override=True)
-
-# Activamos trazabilidad con LangSmith
-os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2", "true")
-os.environ["LANGCHAIN_ENDPOINT"]   = os.getenv("LANGCHAIN_ENDPOINT", "https://eu.api.smith.langchain.com")
-os.environ["LANGCHAIN_API_KEY"]    = os.getenv("LANGCHAIN_API_KEY", "")
-os.environ["LANGCHAIN_PROJECT"]    = os.getenv("LANGCHAIN_PROJECT", "Mi_Chatbot_Digital_Content")
 
 st.set_page_config(
     page_title="NexusAI — Agent Hub",
@@ -737,23 +803,23 @@ html, body, .stApp {
 .stTabs [data-baseweb="tab-list"] {
     background: rgba(30, 30, 53, 0.9) !important;
     border-radius: 18px !important;
-    padding: 10px !important;
+    padding: 8px !important;
     border: 1px solid var(--border-bright) !important;
-    gap: 8px !important;
+    gap: 6px !important;
 }
-stTabs [data-baseweb="tab"] {
+.stTabs [data-baseweb="tab"] {
     background: transparent !important;
     color: #ffffff !important;
     border-radius: 14px !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-weight: 700 !important;
-    font-size: 1.6rem !important;        /* ← MÁS GRANDE (antes 1.3rem) */
-    padding: 22px 42px !important;       /* ← MÁS ALTO Y ANCHO (antes 18px 34px) */
+    font-size: 1.6rem !important;
+    padding: 22px 42px !important;
     border: none !important;
-    min-height: 70px !important;         /* ← ALTURA MÍNIMA GARANTIZADA */
+    min-height: 70px !important;
     white-space: nowrap !important;
 }
-/* Este selector extra fuerza el tamaño del texto dentro del tab */
+/* Selector extra para forzar tamaño dentro del tab */
 .stTabs [data-baseweb="tab"] span,
 .stTabs [data-baseweb="tab"] div,
 .stTabs [data-baseweb="tab"] p,
@@ -960,6 +1026,7 @@ with st.sidebar:
 
     modelo_seleccionado = st.selectbox("🤖 Motor de IA", ("llama-3.1-8b-instant", "mixtral-8x7b-32768"))
     idioma_salida = st.selectbox("🌐 Idioma de salida", ("Castellano", "Inglés", "Francés", "Italiano"))
+    st.write(f"DEBUG idioma: {idioma_salida}") 
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     st.markdown("<div style='font-size:1rem; color:#6b6b8f; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:1rem;'>🏢 Perfil de Empresa</div>", unsafe_allow_html=True)
@@ -1014,7 +1081,7 @@ col_h1, col_h2 = st.columns([2, 1])
 with col_h1:
     st.markdown("""
     <h1 style='font-size:5rem; font-weight:800; color:#f0efff;
-               letter-spacing:-0.03em; margin:0;'>NexusAI — Agent Hub</h1>
+               letter-spacing:-0.03em; margin:0;'>Orquestador de Agentes</h1>
     <p style='color:#a8a8c8; font-size:1.3rem; margin:10px 0 0;'>
         Crea y distribuye contenido de alta precisión impulsado por inteligencia artificial.
     </p>
@@ -1042,18 +1109,12 @@ def renderizar_historial(msgs):
             st.markdown(msg.content)
 
 
-def procesar(texto, key, imagen=True):
-    with st.chat_message("user"):
-        st.markdown(texto)
+def _ejecutar_y_mostrar(texto, key, resp, imagen=True):
+    """
+    Función interna compartida — muestra la respuesta, evalúa y genera imagen.
+    La usan tanto procesar() como procesar_directo().
+    """
     with st.chat_message("assistant"):
-
-        # PASO 1: El agente genera la respuesta
-        with st.spinner("Procesando con IA... ⚡"):
-            resp = enrutar(
-                mensaje=texto, historial=st.session_state[key],
-                llm=llm, nombre_empresa=nombre_empresa,
-                tono_empresa=tono_empresa, idioma_salida=idioma_salida
-            )
 
         # PASO 2: El guardarraíl evalúa la respuesta
         with st.spinner("Evaluando calidad... 🔍"):
@@ -1111,6 +1172,129 @@ def procesar(texto, key, imagen=True):
 
     st.session_state[key].append(HumanMessage(content=texto))
     st.session_state[key].append(AIMessage(content=resp))
+    
+def traducir_respuesta(texto: str, idioma_salida: str) -> str:
+    """
+    Traduce la respuesta al idioma seleccionado por el usuario.
+    Se ejecuta DESPUÉS de que el agente genera la respuesta,
+    así garantizamos el idioma correcto sin depender del modelo.
+    """
+    idiomas_map = {
+        "Castellano": "Spanish",
+        "Inglés":     "English",
+        "Francés":    "French",
+        "Italiano":   "Italian"
+    }
+    idioma_llm = idiomas_map.get(idioma_salida, idioma_salida)
+
+    # Si es castellano no traducimos — es el idioma por defecto
+    if idioma_llm == "Spanish":
+        return texto
+
+    prompt_traduccion = (
+        f"Translate the following text to {idioma_llm}. "
+        f"Keep all emojis, hashtags and formatting exactly as they are. "
+        f"Return ONLY the translated text, nothing else:\n\n{texto}"
+    )
+
+    try:
+        resp = llm.invoke(prompt_traduccion)
+        return resp.content.strip()
+    except Exception:
+        return texto  # si falla, devolvemos el original
+
+def procesar(texto, key, imagen=True):
+    """
+    Pestaña General — USA el enrutador para decidir qué agente activar.
+    El usuario puede escribir cualquier cosa y el enrutador lo clasifica.
+    """
+    with st.chat_message("user"):
+        st.markdown(texto)
+
+    with st.spinner("Procesando con IA... ⚡"):
+        resp = enrutar(
+            mensaje=texto, historial=st.session_state[key],
+            llm=llm, nombre_empresa=nombre_empresa,
+            tono_empresa=tono_empresa, idioma_salida=idioma_salida
+        )
+        # ✅ Traducimos la respuesta al idioma seleccionado
+        resp = traducir_respuesta(resp, idioma_salida)
+
+        # PASO 3: Mostramos la respuesta
+        st.markdown(resp)
+    _ejecutar_y_mostrar(texto, key, resp, imagen)
+
+
+def procesar_directo(texto, key, agente_fn, categoria_esperada, imagen=True):
+    """
+    Pestañas especializadas — VA DIRECTO al agente sin pasar por el enrutador.
+    Pero primero valida que el contenido corresponde a la pestaña.
+
+    Si el usuario escribe algo que no corresponde a la pestaña,
+    le muestra un mensaje de orientación en vez de procesar.
+
+    categoria_esperada: "ciencia", "finanzas" o "contenido"
+    """
+    with st.chat_message("user"):
+        st.markdown(texto)
+
+    # VALIDACIÓN: comprobamos si el mensaje corresponde a esta pestaña
+    # Le preguntamos al LLM con una llamada rápida y barata
+    prompt_validacion = f"""
+    Classify this message into ONE of these categories:
+    - "ciencia": questions about AI, technology, science, research, deep learning
+    - "finanzas": questions about stocks, prices, financial markets, tickers
+    - "contenido": requests for social media posts, Instagram, LinkedIn, Twitter
+
+    Message: "{texto}"
+
+    Reply with ONLY one word: ciencia, finanzas or contenido
+    """
+    
+    try:
+        categoria_detectada = llm.invoke(prompt_validacion).content.strip().lower()
+        # Limpiamos por si el LLM añade texto extra
+        for cat in ["ciencia", "finanzas", "contenido"]:
+            if cat in categoria_detectada:
+                categoria_detectada = cat
+                break
+    except Exception:
+        categoria_detectada = categoria_esperada  # si falla, dejamos pasar
+
+    # Si no corresponde a esta pestaña → mensaje de orientación
+    if categoria_detectada != categoria_esperada:
+        pestañas = {
+            "ciencia":   "🔬 Contenido Científico",
+            "finanzas":  "📈 Contenido de Finanzas",
+            "contenido": "✍️ Redes Sociales"
+        }
+        pestaña_correcta = pestañas.get(categoria_detectada, "💬 Contenido General")
+
+        with st.chat_message("assistant"):
+            st.warning(f"""
+⚠️ **Esta pregunta no corresponde a esta sección.**
+
+Tu pregunta parece ser sobre **{categoria_detectada}**.
+Por favor ve a la pestaña **{pestaña_correcta}** para obtener la mejor respuesta.
+
+También puedes usar la pestaña **💬 Contenido General** donde el enrutador
+detecta automáticamente qué agente necesitas.
+            """)
+        return  # No procesamos — orientamos al usuario
+
+    # Si corresponde → llamamos directamente al agente especializado
+    with st.spinner("Procesando con IA... ⚡"):
+        agente = agente_fn(llm, nombre_empresa, tono_empresa, idioma_salida)
+        resultado = agente.invoke({
+            "input": texto,
+            "chat_history": st.session_state[key]
+        })
+        resp = resultado["output"]
+    resp = traducir_respuesta(resp, idioma_salida)
+    
+    _ejecutar_y_mostrar(texto, key, resp, imagen)
+
+
 
 
 # ═══════════════════════════════════════════
@@ -1169,7 +1353,7 @@ with tab2:
     """, unsafe_allow_html=True)
     renderizar_historial(st.session_state.msgs_ciencia)
     if p := st.chat_input("Pregunta sobre IA, deep learning, NLP...", key="ci2"):
-        procesar(p, "msgs_ciencia")
+        procesar_directo(p, "msgs_ciencia", crear_agente_ciencia, "ciencia")
 
 
 # ── TAB 3 ────────────────────────────────
@@ -1199,12 +1383,12 @@ with tab3:
     ]:
         with col:
             if st.button(label, use_container_width=True, key=f"t_{label}"):
-                procesar(query, "msgs_finanzas", imagen=False)
+                procesar_directo(query, "msgs_finanzas", crear_agente_finanzas, "finanzas", imagen=False)
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
     renderizar_historial(st.session_state.msgs_finanzas)
     if p := st.chat_input("Pregunta sobre acciones y mercados...", key="ci3"):
-        procesar(p, "msgs_finanzas", imagen=False)
+        procesar_directo(p, "msgs_finanzas", crear_agente_finanzas, "finanzas", imagen=False)
 
 
 # ── TAB 4 — REDES SOCIALES ───────────────
@@ -1283,7 +1467,7 @@ with tab4:
         plat = st.session_state.get("plataforma", "")
         if plat:
             p = f"Crea contenido para {plat}: {p}"
-        procesar(p, "msgs_contenido")
+        procesar_directo(p, "msgs_contenido", crear_agente_contenido, "contenido")
 
 
 # ── TAB 5 ────────────────────────────────
