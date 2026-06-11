@@ -14,3 +14,6 @@ knowledge_graph.pkl
 
 # Variables de entorno
 .env
+
+# Artículo de Medium (contenido personal, no parte del código)
+articulo_medium_G.md
