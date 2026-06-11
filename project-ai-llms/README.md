@@ -79,13 +79,7 @@ source venv/bin/activate        # En Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-> ⚠️ **Nota sobre dependencias.** El `requirements.txt` cubre el núcleo (Streamlit, LangChain, Groq…), pero las funciones de RAG y Graph RAG necesitan además estos paquetes. Instálalos si no están presentes:
->
-> ```bash
-> pip install chromadb langchain-chroma langchain-huggingface \
->             sentence-transformers torch transformers \
->             networkx pyvis arxiv
-> ```
+> 💡 ¿Prefieres no instalar nada en local? Salta a [🐳 Ejecutar con Docker](#-ejecutar-con-docker).
 
 ### 3. Variables de entorno
 
@@ -131,6 +125,39 @@ Abre [http://localhost:8501](http://localhost:8501) en tu navegador.
 
 ---
 
+## 🐳 Ejecutar con Docker
+
+Si prefieres no instalar dependencias en local, la app está dockerizada. Solo necesitas tener Docker y un archivo `.env` con tus claves (ver [Variables de entorno](#-variables-de-entorno)).
+
+### Con Docker Compose (recomendado)
+
+```bash
+docker compose up --build
+```
+
+Levanta el contenedor, carga las claves desde tu `.env` y publica la app en [http://localhost:8501](http://localhost:8501). Para pararlo: `docker compose down`.
+
+### Con Docker a secas
+
+```bash
+# Construir la imagen
+docker build -t faro .
+
+# Ejecutar pasando las claves del .env
+docker run --rm -p 8501:8501 --env-file .env faro
+```
+
+**Detalles de la imagen:**
+
+- Base `python:3.9-slim` y **torch en versión CPU**, para una imagen lo más ligera posible.
+- El modelo de embeddings (`all-MiniLM-L6-v2`) se **pre-descarga durante el build**, así el RAG vectorial funciona sin descargas en el primer arranque.
+- La biblioteca vectorial (`chroma_db/`) se monta como volumen: lo que ingestes se conserva en tu máquina.
+- Las claves **nunca** se incluyen en la imagen; se pasan al arrancar vía `--env-file` / `env_file`.
+
+> ⚠️ El `.env` está en `.gitignore` y en `.dockerignore`: si clonas el repo en limpio, créalo antes de construir.
+
+---
+
 ## 🧠 Cómo funciona cada pieza
 
 ### Enrutador (`src/router/`)
@@ -164,6 +191,9 @@ Recibe las fuentes y la respuesta generada y devuelve una puntuación de **1 a 5
 project-ai-llms/
 ├── app.py                      # Interfaz Streamlit (tema "Faro")
 ├── requirements.txt
+├── Dockerfile                  # Imagen de la app (python:3.9-slim + torch CPU)
+├── docker-compose.yml          # Arranque con un comando
+├── .dockerignore
 ├── listar_modelos.py           # Utilidad: lista los modelos disponibles en Groq
 ├── .streamlit/
 │   └── config.toml             # Tema oscuro náutico
