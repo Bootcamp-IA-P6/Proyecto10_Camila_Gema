@@ -2,9 +2,13 @@
 
 > **Luz para tus ideas** — un estudio de contenido multiagente que enruta tu petición al especialista adecuado y la apoya en fuentes reales.
 
+> 🧭 **Para la revisión.** Este repositorio contiene **dos versiones** del proyecto. La **versión final** es la de la carpeta **[`project-ai-llms/`](project-ai-llms/)** — la que trabajamos para esta entrega y la que documenta este README. La carpeta `project-ai-llms-V01/` es una implementación alternativa del equipo.
+
+🔗 **Demo en vivo:** **[mcarenasdh-faro.hf.space](https://mcarenasdh-faro.hf.space)** · [Space en Hugging Face](https://huggingface.co/spaces/mcarenasdh/faro)
+
 Faro es una aplicación [Streamlit](https://streamlit.io/) que combina **varios agentes de IA** bajo un mismo techo. Escribes lo que necesitas en lenguaje natural y un enrutador LLM decide qué agente lo resuelve mejor: redactar contenido para redes, divulgar ciencia apoyándose en papers de arXiv, o componer una newsletter financiera con noticias del día. Las respuestas basadas en fuentes pasan además por un **juez LLM** que puntúa su fiabilidad.
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-1.50-FF4B4B) ![LangChain](https://img.shields.io/badge/LangChain-0.3-1C3C3C) ![Groq](https://img.shields.io/badge/LLM-Groq-F55036)
+![Python](https://img.shields.io/badge/Python-3.9+-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-1.50-FF4B4B) ![LangChain](https://img.shields.io/badge/LangChain-0.3-1C3C3C) ![Groq](https://img.shields.io/badge/LLM-Groq-F55036) ![HF Spaces](https://img.shields.io/badge/Deploy-HF%20Spaces-FFD21E)
 
 ---
 
@@ -78,14 +82,6 @@ source venv/bin/activate        # En Windows: venv\Scripts\activate
 # Instala dependencias
 pip install -r requirements.txt
 ```
-
-> ⚠️ **Nota sobre dependencias.** El `requirements.txt` cubre el núcleo (Streamlit, LangChain, Groq…), pero las funciones de RAG y Graph RAG necesitan además estos paquetes. Instálalos si no están presentes:
->
-> ```bash
-> pip install chromadb langchain-chroma langchain-huggingface \
->             sentence-transformers torch transformers \
->             networkx pyvis arxiv
-> ```
 
 ### 3. Variables de entorno
 
