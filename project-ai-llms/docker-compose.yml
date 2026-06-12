@@ -1,0 +1,14 @@
+services:
+  faro:
+    build: .
+    image: faro:latest
+    container_name: faro
+    ports:
+      - "8501:8501"
+    # Carga las claves de API desde el .env local (no se hornean en la imagen)
+    env_file:
+      - .env
+    # Persiste la biblioteca vectorial: lo que ingestes se guarda en el host
+    volumes:
+      - ./chroma_db:/app/chroma_db
+    restart: unless-stopped

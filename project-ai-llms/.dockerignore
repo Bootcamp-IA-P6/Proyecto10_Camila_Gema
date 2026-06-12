@@ -1,0 +1,21 @@
+# Entorno virtual y cachés (no deben entrar en la imagen)
+venv/
+.venv/
+__pycache__/
+*.pyc
+.cache/
+
+# Control de versiones y metadatos
+.git/
+.gitignore
+
+# Secretos: NUNCA se copian a la imagen, se pasan al arrancar
+.env
+
+# Artefactos temporales
+grafo_temp.html
+.DS_Store
+
+# No hace falta dentro de la imagen
+Dockerfile
+.dockerignore
