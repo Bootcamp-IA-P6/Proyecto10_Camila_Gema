@@ -26,8 +26,13 @@ RUN pip install --upgrade pip \
 # en el primer arranque sin tener que bajarlo en caliente.
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
 
-# Código de la aplicación (incluye chroma_db y lib)
+# Código de la aplicación
 COPY . .
+
+# Construir la biblioteca vectorial (papers de arXiv) dentro de la imagen.
+# Solo usa embeddings locales + arXiv, no requiere claves de API, y evita
+# tener que versionar binarios de Chroma en git.
+RUN python poblar_biblioteca.py
 
 EXPOSE 8501
 

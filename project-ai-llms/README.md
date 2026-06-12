@@ -106,14 +106,13 @@ LANGSMITH_PROJECT=faro
 
 ### 4. (Solo RAG vectorial) Construir la biblioteca de papers
 
-El modo **RAG vectorial** lee de una base vectorial local (`chroma_db/`). Para llenarla con papers de arXiv sobre un tema:
+El modo **RAG vectorial** lee de una base vectorial local (`chroma_db/`), que **no se versiona**. Constrúyela con el script de poblado, que descarga papers de arXiv de varios temas de IA:
 
-```python
-from src.rag.ingesta import construir_biblioteca
-construir_biblioteca("large language models", cantidad=5)
+```bash
+python poblar_biblioteca.py
 ```
 
-> El modo **Graph RAG** no necesita este paso: construye el grafo en vivo desde arXiv en cada consulta.
+> Edita la lista `TEMAS` de [poblar_biblioteca.py](poblar_biblioteca.py) para cubrir otros temas o subir el número de papers. El modo **Graph RAG** no necesita este paso (construye el grafo en vivo desde arXiv). Y con **Docker, la biblioteca se construye automáticamente** durante el build.
 
 ### 5. Ejecutar la app
 
