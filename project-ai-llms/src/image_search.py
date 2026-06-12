@@ -12,6 +12,11 @@ def buscar_imagenes(consulta, cantidad=3):
     respuesta = requests.get(url, headers=headers, params=params)
     datos = respuesta.json()
 
+    # Si Pexels no devuelve fotos (clave inválida, límite de peticiones...),
+    # devolvemos lista vacía y la app simplemente no muestra imágenes.
+    if not isinstance(datos, dict) or "photos" not in datos:
+        return []
+
     imagenes = []
     for foto in datos["photos"]:
         imagenes.append({
