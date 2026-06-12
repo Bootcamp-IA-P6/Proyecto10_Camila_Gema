@@ -2,9 +2,13 @@
 
 > **Luz para tus ideas** — un estudio de contenido multiagente que enruta tu petición al especialista adecuado y la apoya en fuentes reales.
 
+🔗 **Demo en vivo:** **[mcarenasdh-faro.hf.space](https://mcarenasdh-faro.hf.space)** · [Space en Hugging Face](https://huggingface.co/spaces/mcarenasdh/faro)
+
+> 📁 **Sobre la estructura del repo:** este README documenta la versión de la carpeta **`project-ai-llms/`** (la que **no** lleva el sufijo `-V01`). La carpeta `project-ai-llms-V01/` es una implementación distinta del equipo y no es a la que se refiere este documento.
+
 Faro es una aplicación [Streamlit](https://streamlit.io/) que combina **varios agentes de IA** bajo un mismo techo. Escribes lo que necesitas en lenguaje natural y un enrutador LLM decide qué agente lo resuelve mejor: redactar contenido para redes, divulgar ciencia apoyándose en papers de arXiv, o componer una newsletter financiera con noticias del día. Las respuestas basadas en fuentes pasan además por un **juez LLM** que puntúa su fiabilidad.
 
-![Python](https://img.shields.io/badge/Python-3.9+-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-1.50-FF4B4B) ![LangChain](https://img.shields.io/badge/LangChain-0.3-1C3C3C) ![Groq](https://img.shields.io/badge/LLM-Groq-F55036)
+![Python](https://img.shields.io/badge/Python-3.9+-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-1.50-FF4B4B) ![LangChain](https://img.shields.io/badge/LangChain-0.3-1C3C3C) ![Groq](https://img.shields.io/badge/LLM-Groq-F55036) ![HF Spaces](https://img.shields.io/badge/Deploy-HF%20Spaces-FFD21E)
 
 ---
 
