@@ -10,7 +10,7 @@ papers_ia/
 
 # Bases de datos generadas localmente
 vectorstore_ia/
-knowledge_graph.pkl
+
 
 # Variables de entorno
 .env
