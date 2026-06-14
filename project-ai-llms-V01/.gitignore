@@ -4,19 +4,7 @@ __pycache__/
 .venv/
 venv/
 .DS_Store
-.env
-__pycache__/
-*.pyc
-.venv/
-venv/
-.DS_Store
-.env
-# PDFs de papers científicos
+
+# PDFs originales — demasiado grandes para el repo (45MB)
+# vectorstore_ia/ y knowledge_graph.pkl están construidos y se versionan directamente
 papers_ia/
-
-# Bases de datos generadas localmente
-vectorstore_ia/
-
-
-# Variables de entorno
-.env

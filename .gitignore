@@ -9,7 +9,7 @@ venv/
 papers_ia/
 
 # Bases de datos generadas localmente
-vectorstore_ia/
+# vectorstore_ia/ — se versiona en project-ai-llms-V01/ para el despliegue en HuggingFace
 
 
 # Variables de entorno
