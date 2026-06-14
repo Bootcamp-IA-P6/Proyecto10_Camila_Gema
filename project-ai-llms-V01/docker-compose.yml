@@ -1,0 +1,12 @@
+services:
+  nexusai:
+    build: .
+    image: nexusai:latest
+    container_name: nexusai
+    ports:
+      - "8501:7860"    # accede en localhost:8501 durante desarrollo local
+    env_file:
+      - .env           # GROQ_API_KEY, LANGCHAIN_API_KEY, UNSPLASH_ACCESS_KEY
+    volumes:
+      - ./vectorstore_ia:/app/vectorstore_ia   # persiste el FAISS entre reinicios
+    restart: unless-stopped
