@@ -105,17 +105,17 @@ html, body, .stApp {
     border-radius: 14px !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     font-weight: 700 !important;
-    font-size: 1.6rem !important;
-    padding: 22px 42px !important;
+    font-size: 0.95rem !important;
+    padding: 12px 20px !important;
     border: none !important;
-    min-height: 70px !important;
+    min-height: 44px !important;
     white-space: nowrap !important;
 }
 .stTabs [data-baseweb="tab"] span,
 .stTabs [data-baseweb="tab"] div,
 .stTabs [data-baseweb="tab"] p,
 button[data-baseweb="tab"] span {
-    font-size: 1.6rem !important;
+    font-size: 0.95rem !important;
     font-weight: 700 !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
     color: #ffffff !important;
@@ -147,8 +147,8 @@ button[data-baseweb="tab"] span {
 [data-testid="stChatMessage"] h3,
 [data-testid="stChatMessage"] code {
     color: #e8e8ff !important;
-    font-size: 1.25rem !important;
-    line-height: 1.9 !important;
+    font-size: 1rem !important;
+    line-height: 1.7 !important;
 }
 
 /* ── CHAT INPUT ── */
@@ -162,18 +162,18 @@ button[data-baseweb="tab"] span {
 [data-testid="stChatInput"] textarea {
     background: rgba(37, 37, 69, 0.95) !important;
     color: #f0efff !important;
-    font-size: 1.3rem !important;
+    font-size: 1rem !important;
     line-height: 1.6 !important;
     border: none !important;
     box-shadow: none !important;
     caret-color: #8b7cf8 !important;
     -webkit-text-fill-color: #f0efff !important;
-    padding: 14px 18px !important;
+    padding: 10px 14px !important;
 }
 [data-testid="stChatInput"] textarea::placeholder {
     color: rgba(168, 168, 200, 0.6) !important;
     -webkit-text-fill-color: rgba(168, 168, 200, 0.6) !important;
-    font-size: 1.3rem !important;
+    font-size: 1rem !important;
 }
 [data-testid="stChatInput"]:focus-within {
     border-color: var(--accent-purple) !important;
@@ -187,9 +187,9 @@ button[data-baseweb="tab"] span {
     border: none !important;
     border-radius: 14px !important;
     font-weight: 700 !important;
-    font-size: 1.2rem !important;
-    padding: 1rem 2rem !important;
-    min-height: 60px !important;
+    font-size: 0.95rem !important;
+    padding: 0.6rem 1.25rem !important;
+    min-height: 40px !important;
     box-shadow: 0 4px 16px rgba(139,124,248,0.3) !important;
 }
 .stButton > button:hover {
