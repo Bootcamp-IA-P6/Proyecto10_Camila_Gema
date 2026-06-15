@@ -483,7 +483,6 @@ def procesar(texto, key, imagen=True):
             tono_empresa=tono_empresa, idioma_salida=idioma_salida
         )
         resp = traducir_respuesta(resp, idioma_salida)
-        st.markdown(resp)
 
     _ejecutar_y_mostrar(texto, key, resp, imagen)
 
