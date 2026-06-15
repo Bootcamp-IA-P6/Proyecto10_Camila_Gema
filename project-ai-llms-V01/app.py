@@ -301,7 +301,7 @@ with st.sidebar:
 
     st.markdown("<div style='font-size:1rem; color:#6b6b8f; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin-bottom:1rem;'>⚙️ Configuración</div>", unsafe_allow_html=True)
 
-    modelo_seleccionado = st.selectbox("🤖 Motor de IA", ("llama-3.1-8b-instant", "mixtral-8x7b-32768"))
+    modelo_seleccionado = st.selectbox("🤖 Motor de IA", ("llama-3.3-70b-versatile", "llama-3.1-8b-instant", "gemma2-9b-it"))
     idioma_salida = st.selectbox("🌐 Idioma de salida", ("Castellano", "Inglés", "Francés", "Italiano"))
 
     st.markdown('<hr class="divider">', unsafe_allow_html=True)
