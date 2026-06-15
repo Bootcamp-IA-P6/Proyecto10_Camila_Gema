@@ -4,19 +4,12 @@ __pycache__/
 .venv/
 venv/
 .DS_Store
-.env
-__pycache__/
-*.pyc
-.venv/
-venv/
-.DS_Store
-.env
-# PDFs de papers científicos
+
+# PDFs originales — demasiado grandes para el repo (45MB)
 papers_ia/
 
-# Bases de datos generadas localmente
+# Vectorstore generado en Docker — no se versiona
 vectorstore_ia/
-knowledge_graph.pkl
 
-# Variables de entorno
-.env
+# Repo de HuggingFace Spaces (tiene su propio .git, no debe rastrearse aquí)
+hf-nexuxai-deploy/

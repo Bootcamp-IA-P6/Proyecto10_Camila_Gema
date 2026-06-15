@@ -9,11 +9,14 @@ venv/
 papers_ia/
 
 # Bases de datos generadas localmente
-vectorstore_ia/
-knowledge_graph.pkl
+# vectorstore_ia/ — se versiona en project-ai-llms-V01/ para el despliegue en HuggingFace
+
 
 # Variables de entorno
 .env
 
 # Artículo de Medium (contenido personal, no parte del código)
 articulo_medium_G.md
+
+# Repo separado de HuggingFace Spaces (tiene su propio .git)
+hf-nexuxai-deploy/
