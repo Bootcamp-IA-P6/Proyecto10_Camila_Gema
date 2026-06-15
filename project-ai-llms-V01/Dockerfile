@@ -23,8 +23,11 @@ RUN python -c "from sentence_transformers import SentenceTransformer; \
                SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
 
 # Copia el código y los archivos del proyecto
-# vectorstore_ia/ y knowledge_graph.pkl vienen ya construidos desde el repo
 COPY . .
+
+# Construye el vectorstore FAISS descargando papers de arXiv
+# No necesita API keys — usa all-MiniLM-L6-v2 local y la API pública de arXiv
+RUN python build_vectorstore_arxiv.py
 
 # Puerto que usa HuggingFace Spaces
 EXPOSE 7860
