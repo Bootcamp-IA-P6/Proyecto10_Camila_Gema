@@ -13,7 +13,7 @@ from src.tools.guardarrailes import evaluar_respuesta, mostrar_resultado_evaluac
 
 load_dotenv(override=True)
 
-_groq_key = os.getenv("GROQ_API_KEY", "")
+_groq_key = os.getenv("GROQ_API_KEY", "").strip()
 
 st.set_page_config(
     page_title="NexusAI — Agent Hub",
