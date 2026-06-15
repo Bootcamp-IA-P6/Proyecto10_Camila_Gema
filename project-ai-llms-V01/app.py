@@ -13,6 +13,8 @@ from src.tools.guardarrailes import evaluar_respuesta, mostrar_resultado_evaluac
 
 load_dotenv(override=True)
 
+_groq_key = os.getenv("GROQ_API_KEY", "")
+
 st.set_page_config(
     page_title="NexusAI — Agent Hub",
     page_icon="⚡",
@@ -344,7 +346,11 @@ with st.sidebar:
 # ═══════════════════════════════════════════
 # LLM + SESSION STATE
 # ═══════════════════════════════════════════
-llm = ChatGroq(temperature=0.7, model_name=modelo_seleccionado)
+if not _groq_key:
+    st.error("❌ GROQ_API_KEY no encontrada. Añade la variable en tu .env local.", icon="🔑")
+    st.stop()
+
+llm = ChatGroq(temperature=0.7, model_name=modelo_seleccionado, api_key=_groq_key)
 for k in ["msgs_chat","msgs_ciencia","msgs_finanzas","msgs_contenido"]:
     if k not in st.session_state:
         st.session_state[k] = []
