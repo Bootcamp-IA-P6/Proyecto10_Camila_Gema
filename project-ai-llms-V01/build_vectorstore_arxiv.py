@@ -4,7 +4,9 @@ Se ejecuta durante el docker build — no necesita PDFs locales ni API keys.
 """
 import time
 import os
-import arxiv
+import urllib.request
+import urllib.parse
+import xml.etree.ElementTree as ET
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
@@ -20,16 +22,36 @@ TEMAS = [
 PAPERS_POR_TEMA = 4
 RUTA_VECTORSTORE = "vectorstore_ia"
 
+NS = "http://www.w3.org/2005/Atom"
+
 
 def descargar_papers(tema):
-    cliente = arxiv.Client(page_size=PAPERS_POR_TEMA, delay_seconds=3, num_retries=2)
-    busqueda = arxiv.Search(query=tema, max_results=PAPERS_POR_TEMA)
+    query = urllib.parse.quote(tema)
+    url = (
+        f"https://export.arxiv.org/api/query"
+        f"?search_query={query}"
+        f"&max_results={PAPERS_POR_TEMA}"
+        f"&sortBy=relevance&sortOrder=descending"
+    )
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        xml_data = resp.read()
+
+    root = ET.fromstring(xml_data)
     docs = []
-    for r in cliente.results(busqueda):
-        texto = f"{r.title}\n\n{r.summary}"
+    for entry in root.findall(f"{{{NS}}}entry"):
+        title_el = entry.find(f"{{{NS}}}title")
+        summary_el = entry.find(f"{{{NS}}}summary")
+        id_el = entry.find(f"{{{NS}}}id")
+        if title_el is None or summary_el is None:
+            continue
+        title = title_el.text.strip().replace("\n", " ")
+        summary = summary_el.text.strip().replace("\n", " ")
+        entry_id = id_el.text.strip() if id_el is not None else ""
+        texto = f"{title}\n\n{summary}"
         docs.append(Document(
             page_content=texto,
-            metadata={"Title": r.title, "url": r.entry_id}
+            metadata={"Title": title, "url": entry_id}
         ))
     return docs
 
@@ -64,7 +86,7 @@ def construir():
     os.makedirs(RUTA_VECTORSTORE, exist_ok=True)
     vs.save_local(RUTA_VECTORSTORE)
 
-    print(f"\n✅ Vectorstore guardado en {RUTA_VECTORSTORE}/")
+    print(f"\nVectorstore guardado en {RUTA_VECTORSTORE}/")
     print("=" * 55)
 
 
