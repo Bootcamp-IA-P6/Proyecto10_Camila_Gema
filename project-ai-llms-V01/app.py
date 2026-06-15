@@ -51,7 +51,7 @@ st.markdown("""
 html, body, .stApp {
     background: radial-gradient(ellipse at top left, #1a1535 0%, #13131f 40%, #0f1825 100%) !important;
     font-family: 'Plus Jakarta Sans', sans-serif !important;
-    font-size: 20px !important;
+    font-size: 16px !important;
     color: var(--text-primary) !important;
 }
 
@@ -362,9 +362,9 @@ for k in ["msgs_chat","msgs_ciencia","msgs_finanzas","msgs_contenido"]:
 col_h1, col_h2 = st.columns([2, 1])
 with col_h1:
     st.markdown("""
-    <h1 style='font-size:5rem; font-weight:800; color:#f0efff;
+    <h1 style='font-size:3.5rem; font-weight:800; color:#f0efff;
                letter-spacing:-0.03em; margin:0;'>Orquestador de Agentes</h1>
-    <p style='color:#a8a8c8; font-size:1.3rem; margin:10px 0 0;'>
+    <p style='color:#a8a8c8; font-size:1.1rem; margin:10px 0 0;'>
         Crea y distribuye contenido de alta precisión impulsado por inteligencia artificial.
     </p>
     """, unsafe_allow_html=True)
